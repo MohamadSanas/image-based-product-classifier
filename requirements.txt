@@ -1,0 +1,39 @@
+# ============================================================
+# Production Dependencies
+# ============================================================
+
+# Deep Learning
+tensorflow>=2.15.0
+keras>=2.15.0
+
+# Computer Vision
+opencv-python>=4.9.0
+numpy>=1.26.0
+Pillow>=10.2.0
+
+# Machine Learning (metrics / reports)
+scikit-learn>=1.4.0
+
+# Visualization
+matplotlib>=3.8.0
+seaborn>=0.13.0
+
+# Web Framework (API)
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9       # File upload support
+
+# Database / ORM
+sqlalchemy>=2.0.0
+
+# Data validation
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+
+# CLI
+click>=8.1.0
+rich>=13.7.0
+
+# Config & Utils
+pyyaml>=6.0.1
+python-dotenv>=1.0.1

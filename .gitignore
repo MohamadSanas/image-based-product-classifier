@@ -1,0 +1,68 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# Model artifacts (large binary files)
+models/weights/*.h5
+models/weights/*.keras
+models/weights/*.pb
+models/checkpoints/
+
+# Data (keep structure, ignore content)
+data/raw/*/
+data/processed/*/
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/test/.gitkeep
+
+# Output
+output/detected_images/*
+output/reports/*
+output/charts/*
+output/*.db
+output/*.log
+!output/detected_images/.gitkeep
+!output/reports/.gitkeep
+!output/charts/.gitkeep
+
+# Notebooks
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# mypy
+.mypy_cache/
+
+# ruff
+.ruff_cache/

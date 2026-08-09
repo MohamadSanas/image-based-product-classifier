@@ -1,0 +1,90 @@
+# ============================================================
+# Smart Supermarket Product Classifier — Master Configuration
+# ============================================================
+
+project:
+  name: "Smart Supermarket Product Classifier"
+  version: "1.0.0"
+
+# ----- Paths ------------------------------------------------
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_test: "data/test"
+  model_weights: "models/weights/best_model.keras"
+  model_checkpoints: "models/checkpoints"
+  output_images: "output/detected_images"
+  output_reports: "output/reports"
+  output_charts: "output/charts"
+  database: "output/scan_history.db"
+
+# ----- Product Categories -----------------------------------
+categories:
+  - apple
+  - orange
+  - banana
+  - milk
+  - chocolate
+  - biscuit
+  - water_bottle
+  - juice
+
+# ----- Preprocessing ----------------------------------------
+preprocessing:
+  target_size: [224, 224]       # (height, width)
+  normalize: true               # Scale pixel values to [0, 1]
+  denoise: true                 # Apply Gaussian blur
+  denoise_kernel: [3, 3]
+  histogram_equalization: false # Apply CLAHE if true
+
+# ----- Segmentation -----------------------------------------
+segmentation:
+  method: "contour"             # Options: contour | grabcut | watershed
+  min_contour_area: 500         # Ignore regions smaller than this (px²)
+  dilation_kernel: [5, 5]
+  padding: 10                   # Padding around bounding boxes (px)
+
+# ----- Model (Transfer Learning) ----------------------------
+model:
+  base_model: "MobileNetV2"     # Options: MobileNetV2 | EfficientNetB0 | ResNet50
+  input_shape: [224, 224, 3]
+  dropout_rate: 0.3
+  dense_units: 256
+  weights: "imagenet"           # Pretrained weights
+
+# ----- Training ---------------------------------------------
+training:
+  epochs_phase1: 10             # Phase 1: frozen base
+  epochs_phase2: 20             # Phase 2: fine-tune last layers
+  batch_size: 32
+  learning_rate_phase1: 0.001
+  learning_rate_phase2: 0.0001
+  unfreeze_from_layer: -30      # Unfreeze last N layers for phase 2
+  validation_split: 0.2
+  seed: 42
+  augmentation:
+    horizontal_flip: true
+    rotation_range: 20
+    zoom_range: 0.2
+    brightness_range: [0.8, 1.2]
+
+# ----- Classification (Inference) ---------------------------
+inference:
+  confidence_threshold: 0.6    # Minimum confidence to accept a prediction
+  top_k: 3                     # Return top-k predictions per region
+
+# ----- API --------------------------------------------------
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  max_upload_size_mb: 10
+  allowed_extensions: [".jpg", ".jpeg", ".png", ".bmp", ".webp"]
+
+# ----- Visualization ----------------------------------------
+visualization:
+  bbox_color: [0, 255, 0]       # BGR: green bounding boxes
+  bbox_thickness: 2
+  font_scale: 0.7
+  chart_dpi: 150
+  chart_style: "seaborn-v0_8-darkgrid"
