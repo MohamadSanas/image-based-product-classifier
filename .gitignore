@@ -38,6 +38,8 @@ output/reports/*
 output/charts/*
 output/*.db
 output/*.log
+output/*.jpg
+output/*.txt
 !output/detected_images/.gitkeep
 !output/reports/.gitkeep
 !output/charts/.gitkeep

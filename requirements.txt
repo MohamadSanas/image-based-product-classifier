@@ -10,6 +10,7 @@ keras>=2.15.0
 opencv-python>=4.9.0
 numpy>=1.26.0
 Pillow>=10.2.0
+scikit-image>=0.22.0
 
 # Machine Learning (metrics / reports)
 scikit-learn>=1.4.0
