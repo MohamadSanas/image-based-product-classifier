@@ -11,11 +11,48 @@ The system detects supermarket products from images, classifies them into predef
 * Image acquisition and preprocessing.
 * Product detection using YOLOv8.
 * Product segmentation and isolation.
-* Product classification into 200 supermarket product classes.
+* Product classification into **200 supermarket product classes**.
 * Category-wise product counting.
 * Statistical analysis and report generation.
 * Bar chart and Pie chart visualization.
 * Bounding box visualization on detected products.
+
+---
+
+## Product Categories Detected
+
+The trained **YOLOv8** model detects and classifies **200 supermarket products** belonging to **17 major product categories** from the **Retail Product Checkout (RPC)** dataset.
+
+| Product Category          | Number of Product Classes |
+| ------------------------- | ------------------------: |
+| Puffed Food               |                        12 |
+| Dried Fruit               |                         9 |
+| Dried Food                |                         9 |
+| Instant Drinks            |                        11 |
+| Instant Noodles           |                        12 |
+| Desserts                  |                        17 |
+| Soft Drinks & Beverages   |                        13 |
+| Alcoholic Beverages       |                        17 |
+| Milk & Dairy Products     |                        12 |
+| Canned Food               |                        14 |
+| Chocolate                 |                        12 |
+| Chewing Gum               |                         8 |
+| Candy                     |                        10 |
+| Seasonings / Spices       |                        12 |
+| Personal Hygiene Products |                        10 |
+| Tissue Products           |                        19 |
+| Stationery                |                         7 |
+
+**Examples of products detected include:**
+
+* **Beverages:** Coca-Cola, Pepsi, bottled drinks, juice, milk cartons, coffee drinks.
+* **Snacks:** Chips, puffed food, chocolates, candies, chewing gum.
+* **Instant Foods:** Instant noodles, soup mixes, instant drink powders.
+* **Groceries:** Dried fruits, canned food, seasonings, and spices.
+* **Household & Personal Care:** Tissue packs, toothpaste, soap, shampoo, and other hygiene products.
+* **Stationery:** Pens, notebooks, and other stationery items.
+
+> **Note:** The model predicts **200 individual product classes**, where each class represents a specific supermarket product or package variant within these 17 product categories.
 
 ---
 
@@ -34,66 +71,40 @@ The system detects supermarket products from images, classifies them into predef
 
 ```text
 smart-supermarket-product-identification/
-
-│
-
+├── config/
+│   ├── config.yaml
+│   └── logging.yaml
 ├── data/
-
 │   ├── raw/
-
 │   ├── processed/
-
 │   └── test/
-
-│
-
-├── models/
-
-│   └── weights/
-
-│       └── best.pt
-
-│
-
-├── src/
-
-│   ├── preprocessing.py
-
-│   ├── segmentation.py
-
-│   ├── classifier.py
-
-│   ├── statistics.py
-
-│   ├── visualization.py
-
-│   ├── utils.py
-
-│   ├── predict.py
-
-│   └── main.py
-
-│
-
-├── output/
-
-│   ├── detected_images/
-
-│   ├── reports/
-
-│   └── charts/
-
-│
-
 ├── docs/
-
-│
-
-├── requirements.txt
-
+├── images/
+├── models/
+│   └── weights/
+│       └── best.pt
+├── notebooks/
+├── output/
+│   ├── detected_images/
+│   ├── reports/
+│   └── charts/
+├── scripts/
+│   └── test.py
+├── src/
+│   ├── Model_Training/
+│   │   ├── Resource_check.py
+│   │   ├── dataset_check.py
+│   │   └── training_RPC.py
+│   └── __init__.py
+├── tests/
+│   ├── fixtures/
+│   ├── integration/
+│   └── unit/
+├── .env.example
+├── pyproject.toml
 ├── README.md
-
-└── .gitignore
+├── requirements.txt
+└── requirements-dev.txt
 ```
 
 ---
@@ -166,4 +177,4 @@ The system also generates:
 
 **Educational Use Only**
 
-This project was developed for the **EC9570 – Digital Image Processing** course at the Faculty of Engineering, University of Jaffna.
+This project was developed for the **EC9570 – Digital Image Processing** course at the **Faculty of Engineering, University of Jaffna**.
