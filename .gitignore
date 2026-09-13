@@ -28,9 +28,11 @@ models/checkpoints/
 # Data (keep structure, ignore content)
 data/raw/*/
 data/processed/*/
+data/dataset/*/
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/test/.gitkeep
+!data/dataset/.gitkeep
 
 # Output
 output/detected_images/*
