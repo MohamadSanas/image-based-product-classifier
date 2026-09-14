@@ -63,6 +63,8 @@ from config_loader import load_config                       # noqa: E402
 from detection import ProductDetector                       # noqa: E402
 from preprocessing import preprocess_pipeline               # noqa: E402
 from classification import ProductClassifier                # noqa: E402
+from reporting import ProductVisualizer                     # noqa: E402
+from reporting import compute_stats, format_stats_report    # noqa: E402
 
 
 # ──────────────────────────────────────────────────────────────
@@ -145,6 +147,35 @@ def _save_report(
     out_path = out_dir / f"{stem}_report.txt"
     out_path.write_text(report_text, encoding="utf-8")
     return out_path
+
+
+def _save_charts(
+    classified: list,
+    stem: str,
+    output_dir: Path,
+) -> list[Path]:
+    """Generate and save bar chart, pie chart, and confidence histogram.
+
+    Returns a list of saved chart paths (only charts that were
+    successfully created are included).
+    """
+    viz = ProductVisualizer(output_dir=output_dir / "charts")
+    saved: list[Path] = []
+
+    for method_name, label in [
+        ("bar_chart",                "Bar chart"),
+        ("pie_chart",                "Pie chart"),
+        ("confidence_distribution",  "Confidence histogram"),
+    ]:
+        try:
+            method = getattr(viz, method_name)
+            path   = method(classified, stem=stem)
+            saved.append(path)
+            print(f"  [OK] {label:<22} --> {path}")
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("%s generation failed: %s", label, exc)
+
+    return saved
 
 
 # ──────────────────────────────────────────────────────────────
@@ -294,6 +325,25 @@ def run(args: argparse.Namespace) -> int:
     report_text = "\n".join(report_lines)
     txt_out = _save_report(report_text, stem, output_dir)
     print(f"  [OK] Text report     --> {txt_out}")
+
+    # ── 10. Statistical analysis ─────────────────────────────
+    print("\n" + "=" * 60)
+    print("  STEP 6 — Statistical Analysis")
+    print("=" * 60)
+
+    stats      = compute_stats(classified)
+    stats_text = format_stats_report(stats, image_name=image_path.name)
+    print(stats_text)
+
+    stats_out = _save_report(stats_text, f"{stem}_stats", output_dir)
+    print(f"  [OK] Stats report    --> {stats_out}")
+
+    # ── 11. Charts ────────────────────────────────────────────
+    print("\n" + "=" * 60)
+    print("  STEP 7 — Generating Charts")
+    print("=" * 60)
+
+    _save_charts(classified, stem=stem, output_dir=output_dir)
 
     print()
     print("=" * 60)
