@@ -11,7 +11,7 @@ paths:
   data_raw: "data/raw"
   data_processed: "data/processed"
   data_test: "data/test"
-  model_weights: "models/weights/best_model.keras"
+  model_weights: "models/weights/best.pt"
   model_checkpoints: "models/checkpoints"
   output_images: "output/detected_images"
   output_reports: "output/reports"
@@ -31,7 +31,7 @@ categories:
 
 # ----- Preprocessing ----------------------------------------
 preprocessing:
-  target_size: [224, 224]       # (height, width)
+  target_size: [640, 640]       # (height, width) — YOLO input size
   normalize: true               # Scale pixel values to [0, 1]
   denoise: true                 # Apply Gaussian blur
   denoise_kernel: [3, 3]
