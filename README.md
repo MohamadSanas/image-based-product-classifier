@@ -2,20 +2,19 @@
 
 An image processing-based smart supermarket checkout system developed for **EC9570 – Digital Image Processing** at the **Faculty of Engineering, University of Jaffna**.
 
-The system detects supermarket products from images, classifies them into predefined product categories using **YOLOv8**, counts detected products, and generates statistical summaries with visualizations.
+The system detects supermarket products from images, classifies them into predefined product categories using **YOLOv8**, counts detected products, and generates statistical summaries with rich visualizations.
 
 ---
 
 ## Features
 
-* Image acquisition and preprocessing.
-* Product detection using YOLOv8.
-* Product segmentation and isolation.
-* Product classification into **200 supermarket product classes**.
-* Category-wise product counting.
-* Statistical analysis and report generation.
-* Bar chart and Pie chart visualization.
-* Bounding box visualization on detected products.
+* **Interactive File Picker & Overlay:** Select any image from your system, run real-time YOLOv8 detection, display bounding boxes with a semi-transparent class-count panel, and fit to screen size automatically.
+* **Image Acquisition & Preprocessing:** Noise reduction, contrast adjustment, and resolution normalization.
+* **Product Detection & Segmentation:** High-precision bounding box localization using fine-tuned **YOLOv8**.
+* **Product Classification:** Classifies items into **200 supermarket product classes** across 17 main categories.
+* **Category-wise & Item-wise Counting:** Automatic counting and summary aggregation.
+* **Batch Processing Engine:** Process multiple test images in a single run with re-used GPU/CPU model memory.
+* **Statistical Analysis & Visualization:** Automatic generation of detection reports (`.txt`), summary CSVs (`.csv`), bar charts, pie charts, and confidence distribution histograms.
 
 ---
 
@@ -44,62 +43,63 @@ The trained **YOLOv8** model detects and classifies **200 supermarket products**
 | Stationery                |                         7 |
 
 **Examples of products detected include:**
-
 * **Beverages:** Coca-Cola, Pepsi, bottled drinks, juice, milk cartons, coffee drinks.
 * **Snacks:** Chips, puffed food, chocolates, candies, chewing gum.
 * **Instant Foods:** Instant noodles, soup mixes, instant drink powders.
 * **Groceries:** Dried fruits, canned food, seasonings, and spices.
-* **Household & Personal Care:** Tissue packs, toothpaste, soap, shampoo, and other hygiene products.
-* **Stationery:** Pens, notebooks, and other stationery items.
-
-> **Note:** The model predicts **200 individual product classes**, where each class represents a specific supermarket product or package variant within these 17 product categories.
+* **Household & Personal Care:** Tissue packs, toothpaste, soap, shampoo, and hygiene products.
+* **Stationery:** Pens, notebooks, and stationery items.
 
 ---
 
 ## Technologies
 
-* Python 3.13
-* Ultralytics YOLOv8
-* OpenCV
-* NumPy
-* Matplotlib
-* PyTorch
+* **Python 3.13 / 3.10+**
+* **Ultralytics YOLOv8**
+* **OpenCV (`cv2`)**
+* **Tkinter** (Interactive GUI dialogs)
+* **NumPy & Pandas**
+* **Matplotlib** (Chart generation)
+* **PyTorch**
 
 ---
 
 ## Project Structure
 
 ```text
-smart-supermarket-product-identification/
+image-based-product-classifier/
 ├── config/
-│   ├── config.yaml
-│   └── logging.yaml
+│   ├── config.yaml                     # System pipeline & inference configuration
+│   └── logging.yaml                    # System logging configuration
 ├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── test/
-├── docs/
-├── images/
+│   ├── raw/                            # Raw dataset storage
+│   ├── processed/                      # Preprocessed data storage
+│   └── test/                           # Test dataset partition
+├── docs/                               # Project documentation
+├── images/                             # Sample & uploaded test images
 ├── models/
 │   └── weights/
-│       └── best.pt
-├── notebooks/
+│       └── best.pt                     # Fine-tuned YOLOv8 model weights
+├── notebook/
+│   └── grocery-product.ipynb           # Model training & evaluation notebook
 ├── output/
-│   ├── detected_images/
-│   ├── reports/
-│   └── charts/
+│   ├── detected_images/                # Saved bounding-box annotated images
+│   ├── reports/                        # Detection summaries & CSV reports
+│   └── charts/                         # Bar, pie, and confidence charts
 ├── scripts/
-│   └── test.py
+│   ├── test.py                         # Single-image quick test runner
+│   └── batch_run.py                    # Batch runner for all images in images/
 ├── src/
-│   ├── Model_Training/
-│   │   ├── Resource_check.py
-│   │   ├── dataset_check.py
-│   │   └── training_RPC.py
+│   ├── classification/                 # Classification & counting logic
+│   ├── detection/                      # YOLOv8 ProductDetector class & bbox logic
+│   ├── Model_Training/                 # Model training & dataset check scripts
+│   ├── preprocessing/                  # Image acquisition & filtering pipeline
+│   ├── reporting/                      # Visualizer & statistical report generators
+│   ├── config_loader.py                # YAML configuration loader
 │   └── __init__.py
-├── tests/
-│   ├── fixtures/
-│   ├── integration/
-│   └── unit/
+├── tests/                              # Unit & integration tests
+├── final_image_classification_module.py# Main GUI File Picker & Detection Module
+├── run.py                              # Main CLI pipeline entry point
 ├── .env.example
 ├── pyproject.toml
 ├── README.md
@@ -109,28 +109,38 @@ smart-supermarket-product-identification/
 
 ---
 
-## Workflow
+## Usage & Execution
 
-```text
-Input Image
-      │
-      ▼
-Image Acquisition & Preprocessing
-      │
-      ▼
-Product Detection & Segmentation
-      │
-      ▼
-Product Classification
-      │
-      ▼
-Product Counting
-      │
-      ▼
-Statistical Analysis
-      │
-      ▼
-Visualization & Report Generation
+### 1. Interactive Classification GUI (Choose Any Image)
+Run the standalone final classification module to select an image from your PC using a graphical file chooser dialog. It displays the annotated results on screen with an overlay count panel and auto-scales to your monitor resolution:
+
+```bash
+python final_image_classification_module.py
+```
+
+### 2. Full End-to-End Pipeline CLI
+Run the complete pipeline (preprocessing, detection, classification, statistical report, and chart creation) for a specific image:
+
+```bash
+# Process a single image
+python run.py --image images/20180824-13-43-33-401.jpg
+
+# Adjust confidence threshold
+python run.py --image images/20180824-13-43-33-401.jpg --conf 0.35
+```
+
+### 3. Batch Image Processing
+Process all images located inside the `images/` directory at once, saving individual annotated images, reports, charts, and a master `batch_detection_summary.csv`:
+
+```bash
+python scripts/batch_run.py
+```
+
+### 4. Direct YOLO Test Script
+Quick single-image detection test:
+
+```bash
+python scripts/test.py
 ```
 
 ---
@@ -139,28 +149,26 @@ Visualization & Report Generation
 
 ```text
 Detected Products
-
-Chocolate : 4
-Milk      : 2
-Drink     : 3
-Candy     : 1
-
-Total Products : 10
+----------------------------------------
+Desserts                           : 4
+Soft Drinks & Beverages            : 2
+Alcoholic Beverages                : 1
+Instant Noodles                    : 1
+----------------------------------------
+Total Products : 8
 
 Distribution
-
-Chocolate   40%
-Drink       30%
-Milk        20%
-Candy       10%
+----------------------------------------
+Desserts                             50.0%
+Soft Drinks & Beverages              25.0%
+Alcoholic Beverages                  12.5%
+Instant Noodles                      12.5%
 ```
 
-The system also generates:
-
-* Annotated images with product bounding boxes.
-* Detection report (`.txt`).
-* Bar chart of product counts.
-* Pie chart showing category distribution.
+The system generates:
+* **Annotated Images:** Bounding boxes and labels on detected products (`output/detected_images/`).
+* **Text & Statistical Reports:** Summary reports and detection details (`output/reports/`).
+* **Graphical Charts:** Bar charts, pie charts, and confidence distribution graphs (`output/charts/`).
 
 ---
 
