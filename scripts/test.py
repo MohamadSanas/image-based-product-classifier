@@ -9,7 +9,7 @@ import cv2
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 
 MODEL_PATH = PROJECT_DIR / "models" / "weights" / "best.pt"
-IMAGE_PATH = PROJECT_DIR / "images" / "20180824-13-50-07-6.jpg"
+IMAGE_PATH = PROJECT_DIR / "images" / "20180824-14-09-07-416.jpg"
 
 # Output folder inside project
 OUTPUT_DIR = PROJECT_DIR / "output"
@@ -65,6 +65,11 @@ cv2.imwrite(str(output_image_path), predicted_image)
 
 output_txt_path = OUTPUT_DIR / f"{IMAGE_PATH.stem}_prediction.txt"
 
+# Class-id -> class-name mapping as defined by the trained model.
+# This is the same dict used internally by results[0].plot() to draw labels,
+# so looking it up here keeps the text file consistent with the annotated image.
+class_names = model.names
+
 with open(output_txt_path, "w") as f:
 
     print("\nDetections:")
@@ -74,11 +79,12 @@ with open(output_txt_path, "w") as f:
 
         cls_id = int(box.cls.item())
         conf = float(box.conf.item())
+        class_name = class_names.get(cls_id, f"unknown_{cls_id}")
 
         x1, y1, x2, y2 = box.xyxy[0].tolist()
 
         line = (
-            f"Class ID: {cls_id}, "
+            f"Class ID: {cls_id} ({class_name}), "
             f"Confidence: {conf:.4f}, "
             f"BBox: ({x1:.1f}, {y1:.1f}, {x2:.1f}, {y2:.1f})"
         )
