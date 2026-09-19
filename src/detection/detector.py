@@ -352,6 +352,47 @@ class ProductDetector:
         )
         return annotated
 
+    # ── 5. crop_detections (Product Isolation) ────────────────
+
+    def crop_detections(
+        self,
+        image: np.ndarray,
+        detections: list[Detection],
+        padding: int = 5,
+    ) -> list[tuple[Detection, np.ndarray]]:
+        """
+        Isolate (crop) individual detected products from *image*.
+
+        Parameters
+        ----------
+        image : np.ndarray
+            Source image.
+        detections : list[Detection]
+            List of detections to isolate.
+        padding : int
+            Pixel margin added around each bounding box.
+
+        Returns
+        -------
+        list[tuple[Detection, np.ndarray]]
+            Pairs of (detection, cropped_bgr_image).
+        """
+        crops: list[tuple[Detection, np.ndarray]] = []
+        h, w = image.shape[:2]
+
+        for det in detections:
+            x1, y1, x2, y2 = det.bbox
+            x1 = max(0, x1 - padding)
+            y1 = max(0, y1 - padding)
+            x2 = min(w, x2 + padding)
+            y2 = min(h, y2 + padding)
+
+            if x2 > x1 and y2 > y1:
+                crop = image[y1:y2, x1:x2].copy()
+                crops.append((det, crop))
+
+        return crops
+
     # ── repr ──────────────────────────────────────────────────
 
     def __repr__(self) -> str:

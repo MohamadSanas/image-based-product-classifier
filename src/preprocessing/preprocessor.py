@@ -308,14 +308,11 @@ def preprocess_pipeline(
     original = load_image(path)
     processed = original.copy()
 
-    # ── 2. Resize (YOLO expects 640 × 640) ───────────────────
-    if cfg is not None:
-        h, w = cfg.preprocessing.target_size          # from config.yaml
-        target_size = (h, w)
-    else:
-        target_size = YOLO_TARGET_SIZE                # safe default
-
-    processed = resize_image(processed, target_size=target_size, keep_aspect=True)
+    # ── 2. Resize (Optional — YOLO handles 640x640 scaling internally) ──
+    do_resize = getattr(cfg.preprocessing, "resize", False) if cfg is not None else False
+    if do_resize:
+        h, w = cfg.preprocessing.target_size if cfg is not None else YOLO_TARGET_SIZE
+        processed = resize_image(processed, target_size=(h, w), keep_aspect=True)
 
     # ── 3. Denoise ────────────────────────────────────────────
     do_denoise = cfg.preprocessing.denoise if cfg is not None else True
