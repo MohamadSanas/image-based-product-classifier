@@ -18,16 +18,25 @@ paths:
   output_charts: "output/charts"
   database: "output/scan_history.db"
 
-# ----- Product Categories -----------------------------------
+# ----- Product Categories (RPC Dataset) ----------------------
 categories:
-  - apple
-  - orange
-  - banana
-  - milk
-  - chocolate
-  - biscuit
-  - water_bottle
-  - juice
+  - "Puffed Food"
+  - "Dried Fruit"
+  - "Dried Food"
+  - "Instant Drinks"
+  - "Instant Noodles"
+  - "Desserts"
+  - "Soft Drinks & Beverages"
+  - "Alcoholic Beverages"
+  - "Milk & Dairy Products"
+  - "Canned Food"
+  - "Chocolate"
+  - "Chewing Gum"
+  - "Candy"
+  - "Seasonings / Spices"
+  - "Personal Hygiene Products"
+  - "Tissue Products"
+  - "Stationery"
 
 # ----- Preprocessing ----------------------------------------
 preprocessing:
@@ -37,20 +46,17 @@ preprocessing:
   denoise_kernel: [3, 3]
   histogram_equalization: false # Apply CLAHE if true
 
-# ----- Segmentation -----------------------------------------
+# ----- Segmentation / Product Isolation ---------------------
 segmentation:
-  method: "contour"             # Options: contour | grabcut | watershed
-  min_contour_area: 500         # Ignore regions smaller than this (px²)
-  dilation_kernel: [5, 5]
-  padding: 10                   # Padding around bounding boxes (px)
+  method: "bounding_box_roi"    # Region of Interest isolation from bounding boxes
+  padding: 8                   # Margin padding around bounding boxes (px)
 
-# ----- Model (Transfer Learning) ----------------------------
+# ----- Model Architecture -----------------------------------
 model:
-  base_model: "MobileNetV2"     # Options: MobileNetV2 | EfficientNetB0 | ResNet50
-  input_shape: [224, 224, 3]
-  dropout_rate: 0.3
-  dense_units: 256
-  weights: "imagenet"           # Pretrained weights
+  architecture: "YOLOv8n"       # Ultralytics YOLOv8 nano
+  weights: "models/weights/best.pt"
+  num_classes: 200
+  input_shape: [640, 640, 3]
 
 # ----- Training ---------------------------------------------
 training:

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartMart AI — Intelligent Supermarket Checkout System</title>
+  <meta name="description" content="Image Processing and Deep Learning Based Smart Checkout Product Identification System for EC9570.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Ambient background glow effects -->
+  <div class="glow-orb glow-top-left"></div>
+  <div class="glow-orb glow-bottom-right"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="navbar glass-panel">
+      <div class="brand-group">
+        <div class="brand-icon">🛒</div>
+        <div>
+          <h1 class="brand-title">SmartMart <span class="accent-text">AI Checkout</span></h1>
+          <p class="brand-subtitle">EC9570 Digital Image Processing • YOLOv8 Product Identification</p>
+        </div>
+      </div>
+      <div class="status-group">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span id="model-status">YOLOv8n Active</span>
+        </div>
+        <div class="status-pill metric-pill">
+          <span class="pill-label">Classes:</span>
+          <span class="pill-value">200 Products (17 Categories)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Grid -->
+    <main class="workspace-grid">
+      
+      <!-- Left Column: Controls & Input -->
+      <section class="panel control-panel glass-panel">
+        <div class="panel-header">
+          <h2><span>📸</span> Product Acquisition</h2>
+          <span class="badge">Input</span>
+        </div>
+
+        <!-- Dropzone / Upload area -->
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="file-input" accept="image/*" class="file-input-hidden">
+          <div class="dropzone-content">
+            <div class="upload-icon-anim">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <p class="dropzone-prompt"><strong>Click to browse</strong> or drag & drop supermarket checkout tray image</p>
+            <span class="file-types">Supports: JPG, PNG, WEBP (High-res)</span>
+          </div>
+          <div id="preview-thumbnail" class="preview-thumbnail hidden">
+            <img id="thumb-img" src="" alt="Selected Basket">
+            <button id="clear-file-btn" class="btn-icon-close" title="Remove image">×</button>
+          </div>
+        </div>
+
+        <!-- Quick Sample Picker Tray -->
+        <div class="sample-tray-section">
+          <div class="section-title-row">
+            <label class="tray-label">⚡ Quick Samples (RPC Dataset)</label>
+            <span class="count-badge" id="sample-count">37 Available</span>
+          </div>
+          <div class="sample-chips-carousel" id="sample-carousel">
+            <!-- Dynamically populated via JS -->
+            <div class="loading-chip">Loading test samples...</div>
+          </div>
+        </div>
+
+        <!-- Pipeline Tuning Controls -->
+        <div class="tuning-section">
+          <div class="section-title-row">
+            <label class="tray-label">⚙️ Pipeline Parameters</label>
+          </div>
+          
+          <div class="control-row">
+            <div class="slider-header">
+              <span>Confidence Threshold</span>
+              <span id="conf-val" class="slider-value">0.50</span>
+            </div>
+            <input type="range" id="conf-slider" min="0.10" max="0.95" step="0.05" value="0.50" class="custom-slider">
+          </div>
+
+          <div class="toggles-grid">
+            <label class="toggle-card">
+              <input type="checkbox" id="denoise-toggle" checked>
+              <div class="toggle-indicator"></div>
+              <div class="toggle-text">
+                <strong>Gaussian Denoise</strong>
+                <small>3×3 spatial filter</small>
+              </div>
+            </label>
+            <label class="toggle-card">
+              <input type="checkbox" id="clahe-toggle">
+              <div class="toggle-indicator"></div>
+              <div class="toggle-text">
+                <strong>CLAHE Contrast</strong>
+                <small>Adaptive histogram</small>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Process Action Button -->
+        <button id="scan-btn" class="btn-primary scan-btn">
+          <span class="btn-icon">⚡</span>
+          <span class="btn-label">Run Smart Checkout Scan</span>
+          <span class="loader-spinner hidden" id="scan-spinner"></span>
+        </button>
+      </section>
+
+      <!-- Center Column: Detection Visualizer & Isolated Products -->
+      <section class="panel visualizer-panel glass-panel">
+        <div class="panel-header">
+          <div class="tabs-group" id="view-tabs">
+            <button class="tab-btn active" data-view="annotated">🎯 Detected Products</button>
+            <button class="tab-btn" data-view="isolated">📦 Product Isolation (<span id="isolated-badge-count">0</span>)</button>
+            <button class="tab-btn" data-view="charts">📊 Statistical Charts</button>
+          </div>
+          <div class="live-metrics" id="header-metrics">
+            <span class="metric-item">Items: <strong id="total-items-badge">0</strong></span>
+            <span class="metric-item">Confidence: <strong id="mean-conf-badge">0%</strong></span>
+          </div>
+        </div>
+
+        <!-- View 1: Annotated Viewport -->
+        <div class="view-content active" id="view-annotated">
+          <div class="viewport-canvas-container" id="viewport-container">
+            <div class="empty-state" id="empty-state">
+              <div class="empty-icon">🛒</div>
+              <h3>Ready to Scan Checkout Items</h3>
+              <p>Select a sample basket above or upload a supermarket image to test detection & classification.</p>
+            </div>
+            <img id="result-annotated-image" class="result-image hidden" alt="Annotated checkout image">
+            <div id="image-overlay-tags" class="image-overlay-tags"></div>
+          </div>
+        </div>
+
+        <!-- View 2: Isolated Products Gallery (Product Segmentation) -->
+        <div class="view-content" id="view-isolated">
+          <div class="isolated-intro">
+            <p><strong>Digital Image Processing • Object Isolation:</strong> Cropped Regions of Interest (ROI) for each individually segmented retail product.</p>
+          </div>
+          <div class="isolated-grid" id="isolated-grid">
+            <div class="empty-state-small">No products isolated yet. Run a scan to view crops.</div>
+          </div>
+        </div>
+
+        <!-- View 3: Statistical Charts View -->
+        <div class="view-content" id="view-charts">
+          <div class="charts-gallery" id="charts-gallery">
+            <div class="chart-card glass-subpanel">
+              <h4>Category Product Counts (Bar Chart)</h4>
+              <div class="chart-wrapper">
+                <img id="chart-bar" src="" alt="Bar chart" class="chart-img">
+              </div>
+            </div>
+            <div class="chart-card glass-subpanel">
+              <h4>Basket Distribution (Pie Chart)</h4>
+              <div class="chart-wrapper">
+                <img id="chart-pie" src="" alt="Pie chart" class="chart-img">
+              </div>
+            </div>
+            <div class="chart-card glass-subpanel">
+              <h4>Model Confidence Spread</h4>
+              <div class="chart-wrapper">
+                <img id="chart-conf" src="" alt="Confidence distribution" class="chart-img">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: POS Supermarket Digital Receipt -->
+      <section class="panel receipt-panel glass-panel">
+        <div class="panel-header">
+          <h2><span>🧾</span> Checkout Summary</h2>
+          <span class="badge live-badge">Live POS</span>
+        </div>
+
+        <div class="pos-receipt-paper" id="receipt-paper">
+          <div class="receipt-header">
+            <h3>SMARTMART SUPERMARKET</h3>
+            <p>Express Self-Checkout #04</p>
+            <p class="receipt-meta"><span id="receipt-date">--/--/----</span> • <span id="receipt-time">--:--</span></p>
+            <div class="receipt-divider"></div>
+          </div>
+
+          <div class="receipt-items-container" id="receipt-items">
+            <div class="receipt-empty">Awaiting basket scan...</div>
+          </div>
+
+          <div class="receipt-divider"></div>
+
+          <div class="receipt-totals" id="receipt-totals">
+            <div class="total-line">
+              <span>Total Units Detected</span>
+              <strong id="receipt-total-units">0</strong>
+            </div>
+            <div class="total-line">
+              <span>Categories Detected</span>
+              <strong id="receipt-total-cats">0</strong>
+            </div>
+            <div class="total-line highlight-total">
+              <span>Mean Detection Accuracy</span>
+              <strong id="receipt-accuracy">--%</strong>
+            </div>
+          </div>
+
+          <div class="receipt-barcode">
+            <div class="barcode-lines"></div>
+            <span class="barcode-code">EC9570-AI-CHECKOUT-RPC</span>
+          </div>
+        </div>
+
+        <div class="receipt-actions">
+          <button id="download-report-btn" class="btn-secondary" disabled>
+            <span>📄</span> Download Text Report
+          </button>
+          <button id="print-receipt-btn" class="btn-secondary" disabled>
+            <span>🖨️</span> Print POS Receipt
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
